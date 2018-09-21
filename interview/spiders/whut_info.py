@@ -11,7 +11,7 @@ class WhutInfo(scrapy.Spider):
         'http://scc.whut.edu.cn/infoList.shtml?tid=1001&searchForm=&pageNow=1'
     ]
 
-    def __init__(self, major='材料', day = '1', *args, **kwargs):
+    def __init__(self, major='材料', day = '1', email_to = '1745148491@qq.com', *args, **kwargs):
 
         super().__init__(*args, **kwargs)
         day = int(day)
@@ -19,6 +19,7 @@ class WhutInfo(scrapy.Spider):
         #deadline.tm_mday -= day
         self.date = strftime("%Y-%m-%d", deadline)
         self.major = major
+        self.email_to = email_to
 
     def parse(self, response):
         
@@ -82,7 +83,7 @@ class WhutInfo(scrapy.Spider):
         return -1
 
     def closed(self, reason):
-        print('email info')
+    #    print('email info')
         mailer = MailSender.from_settings(self.settings)
         fname =  'whut_info' + strftime('%Y-%m-%d', localtime()) + '.txt'
         body = ''
@@ -91,5 +92,8 @@ class WhutInfo(scrapy.Spider):
                 body += line
         
         #body = str(body,encoding='utf-8')
-        subject = u'scrapy whut about interview info on ' + strftime('%Y-%m-%d', localtime())
-        mailer.send(to = '406522125@qq.com', subject= subject, body = body.encode('utf-8'),charset='utf-8')
+        if body == '': 
+            print('email nothing')
+            return 
+        subject = u'scrapy interview info on ' + strftime('%Y-%m-%d', localtime())
+        mailer.send(to = self.email_to, subject= subject, body = body.encode('utf-8'),charset='utf-8')
