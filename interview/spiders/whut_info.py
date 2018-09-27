@@ -3,6 +3,7 @@ import scrapy
 from ..items import InterviewItem
 from time import strftime, localtime,time
 from scrapy.mail import MailSender
+from scrapy.utils.project import get_project_settings
 #from ..setting import SEC_PER_DAY
 class WhutInfo(scrapy.Spider):
     name = 'whut' 
@@ -11,15 +12,23 @@ class WhutInfo(scrapy.Spider):
         'http://scc.whut.edu.cn/infoList.shtml?tid=1001&searchForm=&pageNow=1'
     ]
 
-    def __init__(self, major='材料', day = '1', email_to = '1745148491@qq.com', *args, **kwargs):
+    def __init__(self, major= None, day = None, email = None, *args, **kwargs):
 
         super().__init__(*args, **kwargs)
+        settings = get_project_settings()
+        print(settings['SEC_PER_DAY'])
+        if day is None:
+            day = settings['DAY_NUM']
         day = int(day)
-        deadline = localtime(time() - day * 24 * 3600)
+        deadline = localtime(time() - day * settings['SEC_PER_DAY'])
         #deadline.tm_mday -= day
         self.date = strftime("%Y-%m-%d", deadline)
+        if major is None:
+            major = settings['MAJOR']
         self.major = major
-        self.email_to = email_to
+        if email is None:
+            email = settings['EMAIL']
+        self.email = email
 
     def parse(self, response):
         
@@ -96,4 +105,4 @@ class WhutInfo(scrapy.Spider):
             print('email nothing')
             return 
         subject = u'scrapy interview info on ' + strftime('%Y-%m-%d', localtime())
-        mailer.send(to = self.email_to, subject= subject, body = body.encode('utf-8'),charset='utf-8')
+        mailer.send(to = self.email, subject= subject, body = body.encode('utf-8'), charset='utf-8')

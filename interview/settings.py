@@ -90,7 +90,9 @@ ITEM_PIPELINES = {
 
 #define date and time constant 
 SEC_PER_DAY = 24 * 3600
-
+EMAIL = '406522125@qq.com'
+DAY_NUM = 1
+MAJOR = '材料'
 # configure email
 MAIL_HOST = 'smtp.qq.com'
 MAIL_FROM = '1743723571@qq.com'
